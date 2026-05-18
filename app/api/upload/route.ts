@@ -20,9 +20,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     })
     return NextResponse.json(jsonResponse)
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 },
-    )
+    const message = (error as Error).message ?? 'Unknown error'
+    console.error('[/api/upload] handleUpload failed:', message)
+    // 400 for client errors (wrong type/size), 500 for server config errors (missing token)
+    const status = message.toLowerCase().includes('token') ? 500 : 400
+    return NextResponse.json({ error: message }, { status })
   }
 }
