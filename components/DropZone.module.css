@@ -1,0 +1,65 @@
+.zone {
+  border-radius: 8px;
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+  outline: none;
+}
+
+.zone:focus-visible {
+  outline: 2px solid #4f6ef7;
+  outline-offset: 2px;
+}
+
+.zoneIdle {
+  border: 2px dashed #303050;
+  background: transparent;
+}
+
+.zoneDragOver {
+  border: 2px solid #4f6ef7;
+  background: rgba(79, 110, 247, 0.06);
+}
+
+.zoneUploading {
+  border: 2px solid #4f6ef7;
+  background: rgba(79, 110, 247, 0.04);
+}
+
+.zoneError {
+  border: 2px solid #ff4d4f;
+  background: rgba(255, 77, 79, 0.06);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px 24px;
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .zone {
+    min-height: 200px;
+  }
+
+  .icon {
+    font-size: 40px !important;
+  }
+
+  .heading {
+    font-size: 18px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zone {
+    transition: none;
+  }
+}

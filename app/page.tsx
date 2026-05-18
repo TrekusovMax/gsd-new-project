@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/AppHeader'
+import { UploadSection } from '@/components/UploadSection'
 
 export default function Home() {
   return (
@@ -6,22 +7,14 @@ export default function Home() {
       <AppHeader />
       <main
         style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
           minHeight: 'calc(100vh - 56px)',
-          padding: '24px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 24,
         }}
       >
-        <div
-          style={{
-            maxWidth: 600,
-            width: '100%',
-            background: '#1a1a2e',
-            borderRadius: 12,
-            padding: 32,
-          }}
-        />
+        <UploadSection />
       </main>
     </>
   )
