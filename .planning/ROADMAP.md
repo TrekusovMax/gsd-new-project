@@ -34,7 +34,7 @@
 Plans:
 - [x] 01-PLAN-1.1.md — Next.js 16 scaffold + TypeScript strict + Ant Design dark theme + type contracts (commit 90f1153)
 - [x] 01-PLAN-1.2.md — Upload UI: DropZone (5 states) + pdfValidation + usePdfUpload + FileInfoCard (commit 1cad99a)
-- [ ] 01-PLAN-1.3.md — API routes: /api/upload token handshake + /api/cleanup + Vercel deploy
+- [x] 01-PLAN-1.3.md — API routes: /api/upload token handshake + /api/cleanup + Vercel deploy (commit 0633945, human-verified 2026-05-18)
 
 **Key Decisions:**
 - Vercel Blob client-upload pattern обязателен из-за лимита 4.5 MB на тело запроса

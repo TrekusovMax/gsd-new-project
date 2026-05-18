@@ -12,9 +12,9 @@ See: .planning/PROJECT.md (updated 2026-05-18)
 ## Current Status
 
 **Phase:** 1 of 2
-**Stage:** Executing — Plan 1.2 complete
+**Stage:** Phase 1 complete — all 3 plans done
 **Milestone:** MVP v1.0
-**Current Plan:** 1.3 (next: API routes + Vercel deploy)
+**Current Plan:** Phase 1 complete → ready for Phase 2
 
 ---
 
@@ -22,7 +22,7 @@ See: .planning/PROJECT.md (updated 2026-05-18)
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| Phase 1: Foundation & Upload | In progress — 2/3 plans complete | PLAN-1.2 done (commit 1cad99a) |
+| Phase 1: Foundation & Upload | Complete — 3/3 plans done | PLAN-1.3 done (commit 0633945 + human-verified) |
 | Phase 2: Compression & Download | Not started | Blocked on Phase 1 |
 
 ## Plan Progress — Phase 1
@@ -31,12 +31,12 @@ See: .planning/PROJECT.md (updated 2026-05-18)
 |------|--------|--------|
 | PLAN-1.1: Next.js scaffold + dark theme + type contracts | Complete | 90f1153 |
 | PLAN-1.2: Upload UI (DropZone + pdfValidation + usePdfUpload + FileInfoCard) | Complete | 1cad99a |
-| PLAN-1.3: API routes (/api/upload + /api/cleanup + Vercel deploy) | Not started | — |
+| PLAN-1.3: API routes (/api/upload + /api/cleanup + Vercel deploy) | Complete | 0633945 + human-verified |
 
 ## Last Session
 
-**Stopped at:** PLAN-1.2 complete — Upload UI (DropZone, usePdfUpload, FileInfoCard, UploadSection)
-**Resume file:** `.planning/phases/01-foundation-upload/01-PLAN-1.3.md`
+**Stopped at:** PLAN-1.3 complete — API routes (/api/upload, /api/cleanup, blobService) + end-to-end upload verified
+**Resume file:** `.planning/phases/02-compression-download/02-PLAN-2.1.md`
 **Date:** 2026-05-18
 
 ---
