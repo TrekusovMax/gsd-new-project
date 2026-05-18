@@ -1,7 +1,10 @@
 import { AppError } from '@/types/upload'
 
 export function validateFileType(file: File): AppError | null {
-  if (file.type === 'application/pdf') {
+  const isPdfMime = file.type === 'application/pdf' || file.type === 'application/octet-stream'
+  // iOS Safari may return empty type for PDFs from iCloud Drive — fall back to extension check
+  const isPdfExt = file.name.toLowerCase().endsWith('.pdf')
+  if (isPdfMime || (file.type === '' && isPdfExt)) {
     return null
   }
   return {

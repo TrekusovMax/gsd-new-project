@@ -9,7 +9,8 @@ export async function POST(request: Request): Promise<NextResponse> {
       body,
       request,
       onBeforeGenerateToken: async (_pathname) => ({
-        allowedContentTypes: ['application/pdf'],
+        // Include octet-stream for iOS Safari which sometimes reports PDF as binary
+        allowedContentTypes: ['application/pdf', 'application/octet-stream'],
         maximumSizeInBytes: 20 * 1024 * 1024,
         addRandomSuffix: true,
       }),
