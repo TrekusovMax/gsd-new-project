@@ -3,7 +3,14 @@
     "allow": [
       "Skill(gsd-new-project)",
       "Skill(gsd-new-project:*)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Skill(gsd-ui-phase)",
+      "Skill(gsd-ui-phase:*)",
+      "Skill(gsd-plan-phase)",
+      "Skill(gsd-plan-phase:*)",
+      "Bash(npx tsc *)",
+      "Bash(node -e \"const {upload} = require\\('@vercel/blob/client'\\); console.log\\(typeof upload\\)\")",
+      "Bash(npm run *)"
     ]
   }
 }
