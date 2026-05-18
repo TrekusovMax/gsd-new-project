@@ -12,8 +12,9 @@ See: .planning/PROJECT.md (updated 2026-05-18)
 ## Current Status
 
 **Phase:** 1 of 2
-**Stage:** Ready to execute
+**Stage:** Executing — Plan 1.1 complete
 **Milestone:** MVP v1.0
+**Current Plan:** 1.2 (next: Upload UI)
 
 ---
 
@@ -21,13 +22,21 @@ See: .planning/PROJECT.md (updated 2026-05-18)
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| Phase 1: Foundation & Upload | Planned — 3 plans | Run `/gsd-execute-phase 1` to execute |
+| Phase 1: Foundation & Upload | In progress — 1/3 plans complete | PLAN-1.1 done (commit 90f1153) |
 | Phase 2: Compression & Download | Not started | Blocked on Phase 1 |
+
+## Plan Progress — Phase 1
+
+| Plan | Status | Commit |
+|------|--------|--------|
+| PLAN-1.1: Next.js scaffold + dark theme + type contracts | Complete | 90f1153 |
+| PLAN-1.2: Upload UI (DropZone + pdfValidation + usePdfUpload + FileInfoCard) | Not started | — |
+| PLAN-1.3: API routes (/api/upload + /api/cleanup + Vercel deploy) | Not started | — |
 
 ## Last Session
 
-**Stopped at:** Phase 1 planned (3 plans: PLAN-1.1, PLAN-1.2, PLAN-1.3)
-**Resume file:** `.planning/phases/01-foundation-upload/`
+**Stopped at:** PLAN-1.1 complete — scaffold, dark theme, types, AppHeader
+**Resume file:** `.planning/phases/01-foundation-upload/01-PLAN-1.2.md`
 **Date:** 2026-05-18
 
 ---
@@ -50,3 +59,5 @@ See: .planning/PROJECT.md (updated 2026-05-18)
 | 2026-05-18 | pdf-lib + sharp (no Ghostscript) | Vercel Lambda has no system binaries |
 | 2026-05-18 | Sequential execution | User preference |
 | 2026-05-18 | Balanced preset as default | UX research: users expect pre-selected default |
+| 2026-05-18 | layout.tsx as 'use client' | Required for Ant Design ConfigProvider SSR — avoids hydration mismatch (RESEARCH.md Pitfall 2) |
+| 2026-05-18 | turbopack.root in next.config.ts | Silences workspace root detection warning when multiple package-lock.json exist |

@@ -32,7 +32,7 @@
 
 **Plans:** 3 plans
 Plans:
-- [ ] 01-PLAN-1.1.md — Next.js 16 scaffold + TypeScript strict + Ant Design dark theme + type contracts
+- [x] 01-PLAN-1.1.md — Next.js 16 scaffold + TypeScript strict + Ant Design dark theme + type contracts (commit 90f1153)
 - [ ] 01-PLAN-1.2.md — Upload UI: DropZone (5 states) + pdfValidation + usePdfUpload + FileInfoCard
 - [ ] 01-PLAN-1.3.md — API routes: /api/upload token handshake + /api/cleanup + Vercel deploy
 

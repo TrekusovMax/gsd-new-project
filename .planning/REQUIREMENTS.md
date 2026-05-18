@@ -34,7 +34,7 @@
 
 - [ ] **INFRA-01**: Загрузка файла использует Vercel Blob client-upload (обход лимита 4.5 MB на тело запроса)
 - [ ] **INFRA-02**: Загруженные файлы удаляются из Vercel Blob после скачивания или через TTL
-- [ ] **INFRA-03**: Приложение развёртывается и работает на Vercel
+- [~] **INFRA-03**: Приложение развёртывается и работает на Vercel (scaffold ready — next.config.ts + serverExternalPackages; full deploy in PLAN-1.3)
 
 ### UI/UX (UX)
 
