@@ -21,8 +21,14 @@ See: .planning/PROJECT.md (updated 2026-05-18)
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| Phase 1: Foundation & Upload | Not started | Run `/gsd-plan-phase 1` to begin |
+| Phase 1: Foundation & Upload | Context captured | Run `/gsd-plan-phase 1` to create plan |
 | Phase 2: Compression & Download | Not started | Blocked on Phase 1 |
+
+## Last Session
+
+**Stopped at:** Phase 1 context gathered
+**Resume file:** `.planning/phases/01-foundation-upload/01-CONTEXT.md`
+**Date:** 2026-05-18
 
 ---
 
