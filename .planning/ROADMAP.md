@@ -30,10 +30,11 @@
 4. Загрузка работает на мобильном устройстве (iOS Safari, Android Chrome)
 5. После успешной загрузки пользователь видит UI-индикатор готовности к сжатию
 
-**Plans:**
-- `PLAN-1.1`: Project scaffolding (Next.js App Router + TypeScript + Ant Design + Vercel Blob)
-- `PLAN-1.2`: Upload UI (DropZone component + validation + progress)
-- `PLAN-1.3`: Upload API (/api/upload — Vercel Blob token handshake + /api/download — proxy)
+**Plans:** 3 plans
+Plans:
+- [ ] 01-PLAN-1.1.md — Next.js 16 scaffold + TypeScript strict + Ant Design dark theme + type contracts
+- [ ] 01-PLAN-1.2.md — Upload UI: DropZone (5 states) + pdfValidation + usePdfUpload + FileInfoCard
+- [ ] 01-PLAN-1.3.md — API routes: /api/upload token handshake + /api/cleanup + Vercel deploy
 
 **Key Decisions:**
 - Vercel Blob client-upload pattern обязателен из-за лимита 4.5 MB на тело запроса
@@ -58,7 +59,7 @@
 5. Ошибки (сбой сжатия, таймаут) показываются пользователю с понятным сообщением и возможностью повторить
 
 **Plans:**
-- `PLAN-2.1`: Compression engine (/api/compress — pdf-lib + sharp + pресеты)
+- `PLAN-2.1`: Compression engine (/api/compress — pdf-lib + sharp + пресеты)
 - `PLAN-2.2`: Compression UI (preset selector + progress + stats display)
 - `PLAN-2.3`: Download flow + error handling + "Compress another" reset
 

@@ -30,6 +30,9 @@
 - **D-08:** Standard Next.js root (без monorepo). Структура: `app/`, `components/`, `features/pdf/`, `hooks/`, `services/`, `types/`.
 - **D-09:** TypeScript strict mode (`"strict": true` в tsconfig).
 
+### Infrastructure Scope
+- **D-10:** INFRA-02 scope split по фазам: Phase 1 реализует on-reset cleanup через `/api/cleanup` (del() при нажатии "Upload another file"). Cleanup после скачивания (post-download del()) деферирован в Phase 2, где появится `/api/download`. `cacheControlMaxAge: 3600` устанавливается для CDN cache-control — не является TTL хранилища.
+
 ### Claude's Discretion
 - **Theme:** Цветовая тема выбирается разработчиком. Рекомендация: использовать Ant Design dark theme (`theme.darkAlgorithm`) — современно, подходит для инструментального продукта, хорошо выглядит с синими/фиолетовыми акцентами.
 

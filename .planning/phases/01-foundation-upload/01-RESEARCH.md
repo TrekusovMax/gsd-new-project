@@ -561,22 +561,22 @@ export async function deleteBlobSafe(url: string): Promise<void> {
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **onUploadCompleted локальная разработка**
    - What we know: Callback не работает без публичного URL; требует ngrok или игнорирования.
    - What's unclear: Нужна ли callback-логика в Phase 1 вообще (мы только логируем).
-   - Recommendation: Не реализовывать бизнес-логику в `onUploadCompleted` для Phase 1 — только `console.log`. Это устраняет проблему.
+   - RESOLVED: Не реализовывать бизнес-логику в `onUploadCompleted` для Phase 1 — только `console.log`. Это устраняет проблему полностью.
 
 2. **Vercel Blob store: public или private access?**
    - What we know: Private blobs требуют server-side proxy для скачивания (Phase 2 `/api/download`). Public blobs доступны напрямую по URL.
    - What's unclear: В Phase 1 файл только загружается — не скачивается.
-   - Recommendation: Создать store с `access: 'private'` сразу. Phase 2 уже ожидает private blobs.
+   - RESOLVED: Создать store с `access: 'private'` сразу. Phase 2 уже ожидает private blobs. Применено в PLAN-1.3 `onBeforeGenerateToken`.
 
 3. **create-next-app vs ручная настройка**
    - What we know: `create-next-app@latest` создаёт проект с Next.js 16 + TypeScript + App Router.
    - What's unclear: Нужно ли использовать `--eslint --tailwind` флаги (Tailwind не нужен).
-   - Recommendation: `npx create-next-app@16.2.6 . --typescript --eslint --no-tailwind --no-src-dir --app` — минимальный setup без лишнего.
+   - RESOLVED: `npx create-next-app@16.2.6 . --typescript --eslint --no-tailwind --no-src-dir --app` — минимальный setup без лишнего. Применено в PLAN-1.1 Task 1.
 
 ---
 
