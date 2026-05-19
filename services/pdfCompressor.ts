@@ -1,107 +1,55 @@
 import * as mupdf from 'mupdf'
-import sharp from 'sharp'
 import { CompressionPreset } from '@/types/upload'
 
 interface PresetConfig {
+  dpi: number
   jpegQuality: number
-  maxDimension: number
 }
 
 const PRESETS: Record<CompressionPreset, PresetConfig> = {
-  maximum: { jpegQuality: 40, maxDimension: 1200 },
-  balanced: { jpegQuality: 65, maxDimension: 2000 },
-  quality:  { jpegQuality: 85, maxDimension: 3000 },
-}
-
-async function reencodeImage(
-  pdfDoc: mupdf.PDFDocument,
-  xobjRef: mupdf.PDFObject,
-  config: PresetConfig,
-): Promise<void> {
-  try {
-    const xobjDict = xobjRef.resolve()
-
-    if (!xobjDict.get('Subtype').isName() || xobjDict.get('Subtype').asName() !== 'Image') return
-
-    // Skip 1-bit image masks
-    const imageMask = xobjDict.get('ImageMask')
-    if (imageMask.isBoolean() && imageMask.asBoolean()) return
-
-    // MuPDF decodes ALL image formats (JBIG2, CCITT, JPEG2000, raw, etc.)
-    const image = pdfDoc.loadImage(xobjRef)
-    const rawPixmap = image.toPixmap()
-
-    // Normalize to DeviceRGB for JPEG encoding
-    const pixmap = rawPixmap.getColorSpace() !== mupdf.ColorSpace.DeviceRGB
-      ? rawPixmap.convertToColorSpace(mupdf.ColorSpace.DeviceRGB, false)
-      : rawPixmap
-
-    const w = pixmap.getWidth()
-    const h = pixmap.getHeight()
-    const pixels = Buffer.from(pixmap.getPixels())
-
-    // Free WASM memory before async sharp operations
-    if (pixmap !== rawPixmap) rawPixmap.destroy()
-    pixmap.destroy()
-    image.destroy()
-
-    let pipeline = sharp(pixels, { raw: { width: w, height: h, channels: 3 } })
-
-    if (w > config.maxDimension || h > config.maxDimension) {
-      pipeline = pipeline.resize(config.maxDimension, config.maxDimension, {
-        fit: 'inside',
-        withoutEnlargement: true,
-      })
-    }
-
-    const jpegBuffer = await pipeline.jpeg({ quality: config.jpegQuality, progressive: false }).toBuffer()
-    const meta = await sharp(jpegBuffer).metadata()
-    const newW = meta.width ?? w
-    const newH = meta.height ?? h
-
-    // writeRawStream must be called on the indirect reference
-    xobjRef.writeRawStream(jpegBuffer)
-
-    // Update image dict (resolved object allows direct dict mutations)
-    xobjDict.put('Filter', 'DCTDecode')
-    xobjDict.put('ColorSpace', 'DeviceRGB')
-    xobjDict.put('Width', newW)
-    xobjDict.put('Height', newH)
-    xobjDict.put('BitsPerComponent', 8)
-    xobjDict.delete('DecodeParms')
-  } catch {
-    // Skip any image that fails to decode or re-encode
-  }
+  maximum: { dpi: 100, jpegQuality: 40 },
+  balanced: { dpi: 130, jpegQuality: 65 },
+  quality:  { dpi: 150, jpegQuality: 85 },
 }
 
 export async function compressPdf(inputBuffer: Buffer, preset: CompressionPreset): Promise<Buffer> {
-  const config = PRESETS[preset]
-  const doc = mupdf.Document.openDocument(inputBuffer, 'application/pdf') as mupdf.PDFDocument
+  const { dpi, jpegQuality } = PRESETS[preset]
+  const scale = dpi / 72
 
-  const processedNums = new Set<number>()
-  const tasks: mupdf.PDFObject[] = []
+  const srcDoc = mupdf.Document.openDocument(inputBuffer, 'application/pdf') as mupdf.PDFDocument
+  const newDoc = new mupdf.PDFDocument()
 
-  for (let i = 0; i < doc.countPages(); i++) {
-    const page = doc.loadPage(i) as mupdf.PDFPage
-    const resources = page.getObject().getInheritable('Resources')
-    if (!resources.isDictionary()) continue
+  const pageCount = srcDoc.countPages()
 
-    const xobjects = resources.get('XObject')
-    if (!xobjects.isDictionary()) continue
+  for (let i = 0; i < pageCount; i++) {
+    const page = srcDoc.loadPage(i)
+    const [x0, y0, x1, y1] = page.getBounds() as [number, number, number, number]
+    const pageW = x1 - x0
+    const pageH = y1 - y0
 
-    xobjects.forEach((xobjRef: mupdf.PDFObject) => {
-      if (!xobjRef.isIndirect()) return
-      const num = xobjRef.asIndirect()
-      if (processedNums.has(num)) return
-      processedNums.add(num)
-      tasks.push(xobjRef)
-    })
+    // Render page at target DPI (MuPDF applies rotation/transforms automatically)
+    const pixmap = page.toPixmap(mupdf.Matrix.scale(scale, scale), mupdf.ColorSpace.DeviceRGB, false, true)
+    const jpegBytes = pixmap.asJPEG(jpegQuality, false)
+    pixmap.destroy()
+
+    // Add image XObject to new doc and free WASM reference immediately
+    const image = new mupdf.Image(jpegBytes)
+    const imgRef = newDoc.addImage(image)
+    image.destroy()
+
+    // Content stream: scale image to fill page mediabox
+    const contents = `q ${pageW} 0 0 ${pageH} ${x0} ${y0} cm /Im0 Do Q`
+
+    // Resources dict
+    const xobjects = newDoc.newDictionary()
+    xobjects.put('Im0', imgRef)
+    const resources = newDoc.newDictionary()
+    resources.put('XObject', xobjects)
+
+    const pageObj = newDoc.addPage([x0, y0, x1, y1], 0, resources, contents)
+    newDoc.insertPage(-1, pageObj)
   }
 
-  for (const ref of tasks) {
-    await reencodeImage(doc, ref, config)
-  }
-
-  const result = doc.saveToBuffer('garbage=4,compress,compress-fonts')
+  const result = newDoc.saveToBuffer('garbage=1,compress')
   return Buffer.from(result.asUint8Array())
 }
