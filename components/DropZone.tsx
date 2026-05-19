@@ -186,7 +186,7 @@ export function DropZone({
                 color: '#8888a8',
               }}
             >
-              PDF only · Up to 20 MB
+              PDF only · Up to 100 MB
             </div>
           </>
         )}

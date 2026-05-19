@@ -11,7 +11,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       onBeforeGenerateToken: async (_pathname) => ({
         // Include octet-stream for iOS Safari which sometimes reports PDF as binary
         allowedContentTypes: ['application/pdf', 'application/octet-stream'],
-        maximumSizeInBytes: 20 * 1024 * 1024,
+        maximumSizeInBytes: 100 * 1024 * 1024,
         addRandomSuffix: true,
       }),
       onUploadCompleted: async ({ blob }) => {

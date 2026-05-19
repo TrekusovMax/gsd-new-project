@@ -14,7 +14,7 @@ export function validateFileType(file: File): AppError | null {
   }
 }
 
-export function validateFileSize(file: File, maxMb = 20): AppError | null {
+export function validateFileSize(file: File, maxMb = 100): AppError | null {
   if (file.size <= maxMb * 1024 * 1024) {
     return null
   }
