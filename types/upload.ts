@@ -3,10 +3,14 @@ export type UploadStage =
   | 'drag-over'
   | 'uploading'
   | 'upload-complete'
+  | 'compressing'
+  | 'compress-complete'
   | 'error'
 
+export type CompressionPreset = 'maximum' | 'balanced' | 'quality'
+
 export interface AppError {
-  code: 'FILE_TYPE' | 'FILE_SIZE' | 'UPLOAD_FAILED' | 'NETWORK'
+  code: 'FILE_TYPE' | 'FILE_SIZE' | 'UPLOAD_FAILED' | 'NETWORK' | 'COMPRESSION_FAILED' | 'ENCRYPTED_PDF'
   message: string
   heading: string
 }
@@ -17,6 +21,10 @@ export interface UploadState {
   uploadProgress: number
   blobUrl: string | null
   error: AppError | null
+  preset: CompressionPreset
+  compressedBlobUrl: string | null
+  originalSize: number | null
+  compressedSize: number | null
 }
 
 export type UploadAction =
@@ -30,3 +38,7 @@ export type UploadAction =
   | { type: 'UPLOAD_ERROR'; error: AppError }
   | { type: 'RESET' }
   | { type: 'ZONE_CLICK' }
+  | { type: 'SET_PRESET'; preset: CompressionPreset }
+  | { type: 'COMPRESS_START' }
+  | { type: 'COMPRESS_DONE'; compressedBlobUrl: string; originalSize: number; compressedSize: number }
+  | { type: 'COMPRESS_ERROR'; error: AppError }

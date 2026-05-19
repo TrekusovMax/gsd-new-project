@@ -11,6 +11,10 @@ const initialState: UploadState = {
   uploadProgress: 0,
   blobUrl: null,
   error: null,
+  preset: 'balanced',
+  compressedBlobUrl: null,
+  originalSize: null,
+  compressedSize: null,
 }
 
 function uploadReducer(state: UploadState, action: UploadAction): UploadState {
@@ -44,6 +48,24 @@ function uploadReducer(state: UploadState, action: UploadAction): UploadState {
 
     case 'ZONE_CLICK':
       return { ...state, stage: 'idle', error: null }
+
+    case 'SET_PRESET':
+      return { ...state, preset: action.preset }
+
+    case 'COMPRESS_START':
+      return { ...state, stage: 'compressing', error: null }
+
+    case 'COMPRESS_DONE':
+      return {
+        ...state,
+        stage: 'compress-complete',
+        compressedBlobUrl: action.compressedBlobUrl,
+        originalSize: action.originalSize,
+        compressedSize: action.compressedSize,
+      }
+
+    case 'COMPRESS_ERROR':
+      return { ...state, stage: 'error', error: action.error }
 
     default: {
       const _exhaustive: never = action
