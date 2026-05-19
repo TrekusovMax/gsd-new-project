@@ -2,7 +2,7 @@
 
 import { useReducer, useRef, useCallback } from 'react'
 import { upload } from '@vercel/blob/client'
-import { UploadState, UploadAction, AppError } from '@/types/upload'
+import { UploadState, UploadAction, AppError, CompressionPreset } from '@/types/upload'
 import { validateFileType, validateFileSize } from './pdfValidation'
 
 const initialState: UploadState = {
@@ -164,6 +164,95 @@ export function usePdfUpload() {
     dispatch({ type: 'RESET' })
   }, [state.blobUrl])
 
+  const handleCompress = useCallback(async () => {
+    if (!state.blobUrl || !state.file) return
+
+    dispatch({ type: 'COMPRESS_START' })
+
+    try {
+      const response = await fetch('/api/compress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          blobUrl: state.blobUrl,
+          preset: state.preset,
+          filename: state.file.name,
+        }),
+      })
+
+      if (!response.ok) {
+        const data: unknown = await response.json().catch(() => ({}))
+        const errorCode = (data as Record<string, unknown>).error
+        const isEncrypted = errorCode === 'ENCRYPTED_PDF'
+        dispatch({
+          type: 'COMPRESS_ERROR',
+          error: {
+            code: isEncrypted ? 'ENCRYPTED_PDF' : 'COMPRESSION_FAILED',
+            heading: isEncrypted ? 'Password-protected PDF' : 'Compression failed',
+            message: isEncrypted
+              ? 'This PDF is password-protected. Remove the password and try again.'
+              : 'Something went wrong during compression. Please try again.',
+          },
+        })
+        return
+      }
+
+      const data = await response.json() as {
+        compressedBlobUrl: string
+        originalSize: number
+        compressedSize: number
+      }
+      dispatch({ type: 'COMPRESS_DONE', ...data })
+    } catch {
+      dispatch({
+        type: 'COMPRESS_ERROR',
+        error: {
+          code: 'COMPRESSION_FAILED',
+          heading: 'Compression failed',
+          message: 'Network error. Check your connection and try again.',
+        },
+      })
+    }
+  }, [state.blobUrl, state.file, state.preset])
+
+  const handleDownload = useCallback(async () => {
+    if (!state.compressedBlobUrl || !state.blobUrl || !state.file) return
+
+    try {
+      const response = await fetch('/api/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          blobUrl: state.blobUrl,
+          compressedBlobUrl: state.compressedBlobUrl,
+          filename: state.file.name,
+        }),
+      })
+
+      if (!response.ok) return
+
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${state.file.name.replace(/\.pdf$/i, '')}-compressed.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      // Silent fail — user already sees the download button and can retry
+    }
+  }, [state.compressedBlobUrl, state.blobUrl, state.file])
+
+  const handleRetry = useCallback(() => {
+    handleCompress()
+  }, [handleCompress])
+
+  const handleSetPreset = useCallback((preset: CompressionPreset) => {
+    dispatch({ type: 'SET_PRESET', preset })
+  }, [])
+
   return {
     state,
     handleFile,
@@ -172,6 +261,10 @@ export function usePdfUpload() {
     handleDrop,
     handleZoneClick,
     handleReset,
+    handleCompress,
+    handleDownload,
+    handleRetry,
+    handleSetPreset,
     fileInputRef,
   }
 }
