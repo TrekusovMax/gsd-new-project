@@ -51,10 +51,6 @@ export function FileInfoCard({
     containerRef.current?.focus()
   }, [])
 
-  // Suppress unused var warning for error — PLAN-2.3 will wire it
-  void error
-  void onRetry
-
   return (
     <div
       ref={containerRef}
@@ -225,8 +221,54 @@ export function FileInfoCard({
         )}
 
         {stage === 'error' && (
-          /* PLAN-2.3: add compress-error state here */
-          null
+          <div
+            style={{
+              border: '1px solid #ff4d4f',
+              borderRadius: 4,
+              padding: 16,
+              marginBottom: 16,
+            }}
+          >
+            {error && (
+              <>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: '#ff4d4f',
+                    marginBottom: 4,
+                  }}
+                >
+                  {error.heading}
+                </div>
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: '#8888a8',
+                    marginBottom: 16,
+                  }}
+                >
+                  {error.message}
+                </div>
+              </>
+            )}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Button
+                type="primary"
+                onClick={onRetry}
+                style={{ flex: 1, minHeight: 40 }}
+              >
+                Повторить
+              </Button>
+              <Button
+                type="default"
+                onClick={onReset}
+                style={{ flex: 1, minHeight: 40 }}
+              >
+                Загрузить другой
+              </Button>
+            </div>
+          </div>
         )}
       </div>
     </div>
