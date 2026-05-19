@@ -60,7 +60,7 @@ Plans:
 
 **Plans:**
 - [x] `PLAN-2.1`: Compression engine (/api/compress — pdf-lib + sharp + пресеты) — commits dec2a13, 77656f3, 75a90ca
-- [ ] `PLAN-2.2`: Compression UI (preset selector + progress + stats display)
+- [x] `PLAN-2.2`: Compression UI (preset selector + progress + stats display) — commits 5d3900c, 0d17b86
 - [ ] `PLAN-2.3`: Download flow + error handling + "Compress another" reset
 
 **Key Decisions:**
