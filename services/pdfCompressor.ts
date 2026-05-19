@@ -7,9 +7,9 @@ interface PresetConfig {
 }
 
 const PRESETS: Record<CompressionPreset, PresetConfig> = {
-  maximum: { dpi: 100, jpegQuality: 40 },
-  balanced: { dpi: 130, jpegQuality: 65 },
-  quality:  { dpi: 150, jpegQuality: 85 },
+  maximum: { dpi: 72,  jpegQuality: 25 },
+  balanced: { dpi: 110, jpegQuality: 55 },
+  quality:  { dpi: 150, jpegQuality: 82 },
 }
 
 export async function compressPdf(inputBuffer: Buffer, preset: CompressionPreset): Promise<Buffer> {
