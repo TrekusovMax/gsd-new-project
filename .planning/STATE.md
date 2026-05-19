@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_plan: PLAN-2.3
-status: in_progress
-stopped_at: PLAN-2.2 complete — usePdfUpload + FileInfoCard + UploadSection compression UI wired
+status: complete
+stopped_at: PLAN-2.3 complete — download proxy + cleanup extension + FileInfoCard error state
 last_updated: "2026-05-19T10:00:00.000Z"
 progress:
   total_phases: 2
   completed_phases: 0
   total_plans: 0
-  completed_plans: 5
+  completed_plans: 6
 ---
 
 # Project State — PDF Compression App
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-05-18)
 ## Current Status
 
 **Phase:** 2 of 2
-**Stage:** Phase 2 — PLAN-2.2 complete, PLAN-2.3 next
+**Stage:** Phase 2 — All plans complete (PLAN-2.1, PLAN-2.2, PLAN-2.3)
 **Milestone:** MVP v1.0
 **Current Plan:** PLAN-2.3
 
@@ -38,7 +38,7 @@ See: .planning/PROJECT.md (updated 2026-05-18)
 | Phase | Status | Notes |
 |-------|--------|-------|
 | Phase 1: Foundation & Upload | Complete — 3/3 plans done | PLAN-1.3 done (commit 0633945 + human-verified) |
-| Phase 2: Compression & Download | In progress — 1/3 done | PLAN-2.1 done (commits dec2a13, 77656f3, 75a90ca) |
+| Phase 2: Compression & Download | Complete — 3/3 plans done | PLAN-2.3 done (commits 027f4db, b4282d2, b30b120) |
 
 ## Plan Progress — Phase 1
 
@@ -54,12 +54,12 @@ See: .planning/PROJECT.md (updated 2026-05-18)
 |------|--------|---------|
 | PLAN-2.1: Compression Engine | Complete | dec2a13 (types), 77656f3 (pdfCompressor), 75a90ca (/api/compress) |
 | PLAN-2.2: Upload UI extension + Compress flow | Complete | 5d3900c (usePdfUpload), 0d17b86 (FileInfoCard + UploadSection) |
-| PLAN-2.3: Download route + Cleanup extension | Pending | — |
+| PLAN-2.3: Download route + Cleanup extension | Complete | 027f4db (/api/download), b4282d2 (/api/cleanup + handleReset), b30b120 (FileInfoCard error) |
 
 ## Last Session
 
-**Stopped at:** PLAN-2.2 complete — compression UI wired (usePdfUpload handlers + FileInfoCard stages + UploadSection)
-**Resume file:** `.planning/phases/02-compression-download/PLAN-2.3.md`
+**Stopped at:** PLAN-2.3 complete — Phase 2 all plans done, MVP v1.0 complete
+**Resume file:** None
 **Date:** 2026-05-19
 
 ---
