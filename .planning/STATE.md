@@ -88,3 +88,4 @@ See: .planning/PROJECT.md (updated 2026-05-18)
 | 2026-05-18 | RefObject<T\|null> in React 19 | useRef<HTMLInputElement>(null) возвращает RefObject<HTMLInputElement \| null> — prop типы обновлены |
 | 2026-05-19 | LiteralObject in context.stream() | context.obj() возвращает PDFDict, несовместимый с параметром LiteralObject context.stream() — передаём dict literal напрямую |
 | 2026-05-19 | SSRF guard в /api/compress | Проверка hostname на *.blob.vercel-storage.com перед server-side fetch — защита от SSRF атак |
+| 2026-05-19 | Bearer token для private blob fetch | fetch(blobUrl, { headers: { Authorization: Bearer TOKEN } }) — downloadUrl от head() тоже требует токен для private blob |
