@@ -15,13 +15,65 @@ const PRESET_CONFIG: Record<CompressionPreset, PresetConfig> = {
   quality: { jpegQuality: 85, maxWidth: 2400, maxHeight: 2400, convertPngToJpeg: false },
 }
 
+interface ImageTask {
+  ref: ReturnType<typeof PDFDocument.prototype.context.nextRef>
+  obj: PDFRawStream
+  isJpeg: boolean
+  imgWidth: number
+  imgHeight: number
+}
+
+async function processImage(
+  task: ImageTask,
+  config: PresetConfig,
+): Promise<{ ref: ImageTask['ref']; newImageBytes: Buffer; newFilter: string; newWidth: number; newHeight: number; colorSpace: string } | null> {
+  const { ref, obj, isJpeg, imgWidth, imgHeight } = task
+  const { jpegQuality, maxWidth, maxHeight, convertPngToJpeg } = config
+
+  try {
+    let pipeline = sharp(Buffer.from(obj.contents))
+
+    if (imgWidth > maxWidth || imgHeight > maxHeight) {
+      pipeline = pipeline.resize(maxWidth, maxHeight, { fit: 'inside', withoutEnlargement: true })
+    }
+
+    let newImageBytes: Buffer
+    let newFilter: string
+
+    if (isJpeg || convertPngToJpeg) {
+      newImageBytes = await pipeline.jpeg({ quality: jpegQuality, progressive: false }).toBuffer()
+      newFilter = 'DCTDecode'
+    } else {
+      newImageBytes = await pipeline.png({ compressionLevel: 9, adaptiveFiltering: true }).toBuffer()
+      newFilter = 'FlateDecode'
+    }
+
+    if (newImageBytes.length >= obj.contents.length) return null
+
+    const metadata = await sharp(newImageBytes).metadata()
+    const newWidth = metadata.width ?? imgWidth
+    const newHeight = metadata.height ?? imgHeight
+
+    const colorSpace = (isJpeg || convertPngToJpeg)
+      ? 'DeviceRGB'
+      : (obj.dict.get(PDFName.of('ColorSpace'))?.toString() ?? 'DeviceRGB')
+
+    return { ref, newImageBytes, newFilter, newWidth, newHeight, colorSpace }
+  } catch {
+    return null
+  }
+}
+
 export async function compressPdf(inputBuffer: Buffer, preset: CompressionPreset): Promise<Buffer> {
   const pdfDoc = await PDFDocument.load(inputBuffer, { ignoreEncryption: false })
 
-  const { jpegQuality, maxWidth, maxHeight, convertPngToJpeg } = PRESET_CONFIG[preset]
+  const config = PRESET_CONFIG[preset]
   const context = pdfDoc.context
 
   try {
+    // Collect all image streams first, then process in parallel
+    const tasks: ImageTask[] = []
+
     for (const [ref, obj] of context.enumerateIndirectObjects()) {
       if (!(obj instanceof PDFRawStream)) continue
 
@@ -38,54 +90,31 @@ export async function compressPdf(inputBuffer: Buffer, preset: CompressionPreset
       const isPng = !isJpeg && filterStr.includes('FlateDecode')
       if (!isJpeg && !isPng) continue
 
-      try {
-        const widthEntry = obj.dict.get(PDFName.of('Width'))
-        const heightEntry = obj.dict.get(PDFName.of('Height'))
-        const imgWidth = widthEntry instanceof PDFNumber ? widthEntry.asNumber() : 0
-        const imgHeight = heightEntry instanceof PDFNumber ? heightEntry.asNumber() : 0
+      const widthEntry = obj.dict.get(PDFName.of('Width'))
+      const heightEntry = obj.dict.get(PDFName.of('Height'))
+      const imgWidth = widthEntry instanceof PDFNumber ? widthEntry.asNumber() : 0
+      const imgHeight = heightEntry instanceof PDFNumber ? heightEntry.asNumber() : 0
 
-        let pipeline = sharp(Buffer.from(obj.contents))
+      tasks.push({ ref, obj, isJpeg, imgWidth, imgHeight })
+    }
 
-        if (imgWidth > maxWidth || imgHeight > maxHeight) {
-          pipeline = pipeline.resize(maxWidth, maxHeight, { fit: 'inside', withoutEnlargement: true })
-        }
+    // Process all images in parallel
+    const results = await Promise.all(tasks.map(task => processImage(task, config)))
 
-        let newImageBytes: Buffer
-        let newFilter: string
-
-        if (isJpeg || convertPngToJpeg) {
-          newImageBytes = await pipeline.jpeg({ quality: jpegQuality, progressive: false }).toBuffer()
-          newFilter = 'DCTDecode'
-        } else {
-          newImageBytes = await pipeline.png({ compressionLevel: 9, adaptiveFiltering: true }).toBuffer()
-          newFilter = 'FlateDecode'
-        }
-
-        if (newImageBytes.length >= obj.contents.length) continue
-
-        const metadata = await sharp(newImageBytes).metadata()
-        const newWidth = metadata.width ?? imgWidth
-        const newHeight = metadata.height ?? imgHeight
-
-        const colorSpace = (isJpeg || convertPngToJpeg)
-          ? 'DeviceRGB'
-          : (obj.dict.get(PDFName.of('ColorSpace'))?.toString() ?? 'DeviceRGB')
-
-        const newStreamDict = {
-          Type: 'XObject',
-          Subtype: 'Image',
-          Width: newWidth,
-          Height: newHeight,
-          ColorSpace: colorSpace,
-          BitsPerComponent: 8,
-          Filter: PDFName.of(newFilter),
-          Length: newImageBytes.length,
-        }
-
-        context.assign(ref, context.stream(newImageBytes, newStreamDict))
-      } catch {
-        continue
-      }
+    // Apply results back to PDF context (single-threaded, safe)
+    for (const result of results) {
+      if (!result) continue
+      const { ref, newImageBytes, newFilter, newWidth, newHeight, colorSpace } = result
+      context.assign(ref, context.stream(newImageBytes, {
+        Type: 'XObject',
+        Subtype: 'Image',
+        Width: newWidth,
+        Height: newHeight,
+        ColorSpace: colorSpace,
+        BitsPerComponent: 8,
+        Filter: PDFName.of(newFilter),
+        Length: newImageBytes.length,
+      }))
     }
   } catch {
     // Pass 1 failed entirely — proceed to Pass 2 with original pdfDoc
