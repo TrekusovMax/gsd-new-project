@@ -39,8 +39,13 @@ export async function POST(request: Request): Promise<Response> {
     return NextResponse.json({ error: 'File not found' }, { status: 404 })
   }
 
-  const fileResponse = await fetch(blobMeta.downloadUrl)
+  const fileResponse = await fetch(blobMeta.downloadUrl, {
+    headers: {
+      Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN ?? ''}`,
+    },
+  })
   if (!fileResponse.ok || !fileResponse.body) {
+    console.error('[/api/download] fetch blob failed:', fileResponse.status, fileResponse.statusText)
     return NextResponse.json({ error: 'Failed to fetch file' }, { status: 502 })
   }
 

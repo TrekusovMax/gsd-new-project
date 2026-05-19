@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { head, put } from '@vercel/blob'
+import { put } from '@vercel/blob'
 import { z } from 'zod'
 import crypto from 'crypto'
 import { compressPdf } from '@/services/pdfCompressor'
@@ -34,16 +34,18 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   let pdfBuffer: Buffer
   try {
-    const blobMeta = await head(blobUrl)
-    if (!blobMeta) {
-      return NextResponse.json({ error: 'File not found or expired' }, { status: 404 })
-    }
-    const response = await fetch(blobMeta.downloadUrl)
+    const response = await fetch(blobUrl, {
+      headers: {
+        Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN ?? ''}`,
+      },
+    })
     if (!response.ok) {
+      console.error('[/api/compress] fetch blob failed:', response.status, response.statusText)
       return NextResponse.json({ error: 'Could not fetch PDF from storage' }, { status: 502 })
     }
     pdfBuffer = Buffer.from(await response.arrayBuffer())
-  } catch {
+  } catch (err) {
+    console.error('[/api/compress] retrieve error:', err)
     return NextResponse.json({ error: 'Failed to retrieve file' }, { status: 502 })
   }
 
