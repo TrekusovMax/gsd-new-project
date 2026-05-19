@@ -29,16 +29,21 @@ async function reencodeImage(
 
     // MuPDF decodes ALL image formats (JBIG2, CCITT, JPEG2000, raw, etc.)
     const image = pdfDoc.loadImage(xobjRef)
-    let pixmap = image.toPixmap()
+    const rawPixmap = image.toPixmap()
 
     // Normalize to DeviceRGB for JPEG encoding
-    if (pixmap.getColorSpace() !== mupdf.ColorSpace.DeviceRGB) {
-      pixmap = pixmap.convertToColorSpace(mupdf.ColorSpace.DeviceRGB, false)
-    }
+    const pixmap = rawPixmap.getColorSpace() !== mupdf.ColorSpace.DeviceRGB
+      ? rawPixmap.convertToColorSpace(mupdf.ColorSpace.DeviceRGB, false)
+      : rawPixmap
 
     const w = pixmap.getWidth()
     const h = pixmap.getHeight()
     const pixels = Buffer.from(pixmap.getPixels())
+
+    // Free WASM memory before async sharp operations
+    if (pixmap !== rawPixmap) rawPixmap.destroy()
+    pixmap.destroy()
+    image.destroy()
 
     let pipeline = sharp(pixels, { raw: { width: w, height: h, channels: 3 } })
 
@@ -93,7 +98,9 @@ export async function compressPdf(inputBuffer: Buffer, preset: CompressionPreset
     })
   }
 
-  await Promise.all(tasks.map(ref => reencodeImage(doc, ref, config)))
+  for (const ref of tasks) {
+    await reencodeImage(doc, ref, config)
+  }
 
   const result = doc.saveToBuffer('garbage=4,compress,compress-fonts')
   return Buffer.from(result.asUint8Array())
