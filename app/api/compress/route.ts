@@ -5,13 +5,29 @@ import crypto from 'crypto'
 import { compressPdf } from '@/services/pdfCompressor'
 
 export const runtime = 'nodejs'
-export const maxDuration = 60
+export const maxDuration = 120
 
 const schema = z.object({
   blobUrl: z.string().url(),
   preset: z.enum(['maximum', 'balanced', 'quality']),
   filename: z.string().min(1).max(255),
 })
+
+async function fetchBlobWithRetry(blobUrl: string, maxAttempts = 3): Promise<Buffer> {
+  const headers = { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN ?? ''}` }
+  let lastErr: unknown
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      const response = await fetch(blobUrl, { headers })
+      if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`)
+      return Buffer.from(await response.arrayBuffer())
+    } catch (err) {
+      lastErr = err
+      if (attempt < maxAttempts - 1) await new Promise(r => setTimeout(r, 1500 * (attempt + 1)))
+    }
+  }
+  throw lastErr
+}
 
 export async function POST(request: Request): Promise<NextResponse> {
   let body: unknown
@@ -34,16 +50,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   let pdfBuffer: Buffer
   try {
-    const response = await fetch(blobUrl, {
-      headers: {
-        Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN ?? ''}`,
-      },
-    })
-    if (!response.ok) {
-      console.error('[/api/compress] fetch blob failed:', response.status, response.statusText)
-      return NextResponse.json({ error: 'Could not fetch PDF from storage' }, { status: 502 })
-    }
-    pdfBuffer = Buffer.from(await response.arrayBuffer())
+    pdfBuffer = await fetchBlobWithRetry(blobUrl)
   } catch (err) {
     console.error('[/api/compress] retrieve error:', err)
     return NextResponse.json({ error: 'Failed to retrieve file' }, { status: 502 })
