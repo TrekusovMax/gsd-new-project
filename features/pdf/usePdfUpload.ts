@@ -158,11 +158,14 @@ export function usePdfUpload() {
       fetch('/api/cleanup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: state.blobUrl }),
+        body: JSON.stringify({
+          url: state.blobUrl,
+          ...(state.compressedBlobUrl ? { compressedUrl: state.compressedBlobUrl } : {}),
+        }),
       }).catch(() => {})
     }
     dispatch({ type: 'RESET' })
-  }, [state.blobUrl])
+  }, [state.blobUrl, state.compressedBlobUrl])
 
   const handleCompress = useCallback(async () => {
     if (!state.blobUrl || !state.file) return

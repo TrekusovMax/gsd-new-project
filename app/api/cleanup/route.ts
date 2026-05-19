@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { deleteBlobSafe } from '@/services/blobService'
 
-const schema = z.object({ url: z.string().url() })
+const schema = z.object({
+  url: z.string().url(),
+  compressedUrl: z.string().url().optional(),
+})
 
 export async function POST(request: Request): Promise<NextResponse> {
   let body: unknown
@@ -17,6 +20,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  await deleteBlobSafe(result.data.url)
+  const { url, compressedUrl } = result.data
+  await deleteBlobSafe(url)
+  if (compressedUrl) {
+    await deleteBlobSafe(compressedUrl)
+  }
   return NextResponse.json({ ok: true })
 }
