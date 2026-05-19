@@ -59,9 +59,9 @@ Plans:
 5. Ошибки (сбой сжатия, таймаут) показываются пользователю с понятным сообщением и возможностью повторить
 
 **Plans:**
-- `PLAN-2.1`: Compression engine (/api/compress — pdf-lib + sharp + пресеты)
-- `PLAN-2.2`: Compression UI (preset selector + progress + stats display)
-- `PLAN-2.3`: Download flow + error handling + "Compress another" reset
+- [x] `PLAN-2.1`: Compression engine (/api/compress — pdf-lib + sharp + пресеты) — commits dec2a13, 77656f3, 75a90ca
+- [ ] `PLAN-2.2`: Compression UI (preset selector + progress + stats display)
+- [ ] `PLAN-2.3`: Download flow + error handling + "Compress another" reset
 
 **Key Decisions:**
 - pdf-lib 1.17.1 (pure-JS) + sharp 0.34.5 для image recompression — нет Ghostscript на Vercel

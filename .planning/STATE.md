@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-05-18)
 
 **Core value:** Пользователь загружает PDF, сжимает и скачивает — максимум 3 клика, без регистрации.
-**Current focus:** Phase 1 — Foundation & Upload
+**Current focus:** Phase 2 — Compression & Download
 
 ---
 
 ## Current Status
 
-**Phase:** 1 of 2
-**Stage:** Phase 1 complete — all 3 plans done
+**Phase:** 2 of 2
+**Stage:** Phase 2 — PLAN-2.1 complete, Wave 2 ready (PLAN-2.2 + PLAN-2.3)
 **Milestone:** MVP v1.0
-**Current Plan:** Phase 1 complete → ready for Phase 2
+**Current Plan:** PLAN-2.2 + PLAN-2.3 (Wave 2)
 
 ---
 
@@ -23,7 +23,7 @@ See: .planning/PROJECT.md (updated 2026-05-18)
 | Phase | Status | Notes |
 |-------|--------|-------|
 | Phase 1: Foundation & Upload | Complete — 3/3 plans done | PLAN-1.3 done (commit 0633945 + human-verified) |
-| Phase 2: Compression & Download | Not started | Blocked on Phase 1 |
+| Phase 2: Compression & Download | In progress — 1/3 done | PLAN-2.1 done (commits dec2a13, 77656f3, 75a90ca) |
 
 ## Plan Progress — Phase 1
 
@@ -33,11 +33,19 @@ See: .planning/PROJECT.md (updated 2026-05-18)
 | PLAN-1.2: Upload UI (DropZone + pdfValidation + usePdfUpload + FileInfoCard) | Complete | 1cad99a |
 | PLAN-1.3: API routes (/api/upload + /api/cleanup + Vercel deploy) | Complete | 0633945 + human-verified |
 
+## Plan Progress — Phase 2
+
+| Plan | Status | Commits |
+|------|--------|---------|
+| PLAN-2.1: Compression Engine | Complete | dec2a13 (types), 77656f3 (pdfCompressor), 75a90ca (/api/compress) |
+| PLAN-2.2: Upload UI extension + Compress flow | Pending | — |
+| PLAN-2.3: Download route + Cleanup extension | Pending | — |
+
 ## Last Session
 
-**Stopped at:** PLAN-1.3 complete — API routes (/api/upload, /api/cleanup, blobService) + end-to-end upload verified
-**Resume file:** `.planning/phases/02-compression-download/02-PLAN-2.1.md`
-**Date:** 2026-05-18
+**Stopped at:** PLAN-2.1 complete — pdfCompressor service + /api/compress route built and verified
+**Resume file:** `.planning/phases/02-compression-download/PLAN-2.2.md`
+**Date:** 2026-05-19
 
 ---
 
@@ -63,3 +71,5 @@ See: .planning/PROJECT.md (updated 2026-05-18)
 | 2026-05-18 | turbopack.root in next.config.ts | Silences workspace root detection warning when multiple package-lock.json exist |
 | 2026-05-18 | cacheControlMaxAge server-side only | Client SDK UploadOptions не поддерживает этот параметр — устанавливается через onBeforeGenerateToken в /api/upload |
 | 2026-05-18 | RefObject<T\|null> in React 19 | useRef<HTMLInputElement>(null) возвращает RefObject<HTMLInputElement \| null> — prop типы обновлены |
+| 2026-05-19 | LiteralObject in context.stream() | context.obj() возвращает PDFDict, несовместимый с параметром LiteralObject context.stream() — передаём dict literal напрямую |
+| 2026-05-19 | SSRF guard в /api/compress | Проверка hostname на *.blob.vercel-storage.com перед server-side fetch — защита от SSRF атак |
