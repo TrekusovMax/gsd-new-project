@@ -13,6 +13,10 @@ export function UploadSection() {
     handleDrop,
     handleZoneClick,
     handleReset,
+    handleCompress,
+    handleDownload,
+    handleRetry,
+    handleSetPreset,
     fileInputRef,
   } = usePdfUpload()
 
@@ -44,11 +48,24 @@ export function UploadSection() {
         fileInputRef={fileInputRef}
       />
 
-      {state.stage === 'upload-complete' && state.file !== null && (
+      {(state.stage === 'upload-complete' ||
+        state.stage === 'compressing' ||
+        state.stage === 'compress-complete' ||
+        state.stage === 'error') &&
+        state.file !== null && (
         <FileInfoCard
           filename={state.file.name}
           size={state.file.size}
+          stage={state.stage as 'upload-complete' | 'compressing' | 'compress-complete' | 'error'}
+          preset={state.preset}
+          onPresetChange={handleSetPreset}
+          onCompress={handleCompress}
+          onDownload={handleDownload}
           onReset={handleReset}
+          onRetry={handleRetry}
+          originalSize={state.originalSize}
+          compressedSize={state.compressedSize}
+          error={state.error}
         />
       )}
     </div>
